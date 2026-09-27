@@ -1,0 +1,13 @@
+# ЛР2 hammer API — зависимости (деплой на Render free: 0.1 CPU / 512 MB RAM)
+# v1.4: инференс на onnxruntime — torch/ultralytics больше НЕ нужны на сервере:
+#   сборка ~2 мин (было ~10), RSS ~150 MB (было ~450), инференс ~0.5 с (было 1.5-3 с)
+onnxruntime==1.30.0
+
+# headless-сборка OpenCV: без GUI-библиотек, ниже потребление памяти
+opencv-python-headless==5.0.0.93
+
+fastapi==0.128.0
+uvicorn[standard]==0.44.0
+python-multipart==0.0.24
+numpy>=2.1,<3
+pyyaml==6.0.3

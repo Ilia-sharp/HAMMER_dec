@@ -1,0 +1,26 @@
+# Параметры обучения ЛР2 (вариант 16, класс hammer)
+model: yolo26n.pt        # предобученная YOLO26 nano
+data: data.yaml          # см. .data_runtime.yaml (генерируется на лету)
+epochs: 50               # увеличено с 25 для повышения метрик
+imgsz: 640
+batch: 4                 # небольшой batch — экономия RAM при обучении на CPU
+seed: 16                 # вариант 16 — воспроизводимость
+device: cpu
+workers: 0
+patience: 100
+optimizer: auto
+lr0: 0.01
+lrf: 0.01
+momentum: 0.937
+weight_decay: 0.0005
+warmup_epochs: 3
+cos_lr: true
+hsv_h: 0.015
+hsv_s: 0.7
+hsv_v: 0.4
+degrees: 10
+translate: 0.1
+scale: 0.5
+fliplr: 0.5
+mosaic: 1.0
+close_mosaic: 10

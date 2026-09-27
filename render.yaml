@@ -1,0 +1,29 @@
+# Render Blueprint — ЛР2 «Детекция молотка» (вариант 16)
+# Деплой: Render Dashboard -> New + -> Blueprint -> выбрать репозиторий.
+# Тариф: free ($0/мес, 0.1 CPU, 512 MB RAM). Спин-даун после 15 мин простоя:
+# первый запрос будет «холодным» (~50 с), повторные — быстрые.
+services:
+  - type: web
+    name: sii-lr02-hammer-api
+    runtime: python
+    plan: free
+    autoDeploy: true
+    buildCommand: pip install --upgrade pip && pip install -r requirements.txt && pip uninstall -y opencv-python opencv-python-headless && pip install --no-cache-dir opencv-python-headless==5.0.0.93
+    startCommand: uvicorn src.api:app --host 0.0.0.0 --port $PORT --workers 1 --no-access-log
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.14"
+      # лимит потоков BLAS/torch: на 0.1 CPU многопоточность только вредит
+      - key: OMP_NUM_THREADS
+        value: "1"
+      - key: MKL_NUM_THREADS
+        value: "1"
+      # ограничение glibc malloc-арен — заметная экономия RAM в контейнере
+      - key: MALLOC_ARENA_MAX
+        value: "2"
+      # кэш настроек ultralytics во временный каталог (записываемый)
+      - key: YOLO_CONFIG_DIR
+        value: /tmp/Ultralytics
+      - key: YOLO_OFFLINE
+        value: "true"

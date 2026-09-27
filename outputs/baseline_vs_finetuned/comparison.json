@@ -1,0 +1,140 @@
+[
+ {
+  "image": "test_01.jpg",
+  "baseline_detections": [],
+  "finetuned_detections": [
+   {
+    "class": "hammer",
+    "conf": 0.545
+   },
+   {
+    "class": "hammer",
+    "conf": 0.406
+   },
+   {
+    "class": "hammer",
+    "conf": 0.251
+   }
+  ],
+  "hammer_found": true
+ },
+ {
+  "image": "test_02.jpg",
+  "baseline_detections": [
+   {
+    "class": "keyboard",
+    "conf": 0.815
+   }
+  ],
+  "finetuned_detections": [
+   {
+    "class": "hammer",
+    "conf": 0.506
+   }
+  ],
+  "hammer_found": true
+ },
+ {
+  "image": "test_03.jpg",
+  "baseline_detections": [
+   {
+    "class": "airplane",
+    "conf": 0.397
+   }
+  ],
+  "finetuned_detections": [
+   {
+    "class": "hammer",
+    "conf": 0.504
+   },
+   {
+    "class": "hammer",
+    "conf": 0.274
+   }
+  ],
+  "hammer_found": true
+ },
+ {
+  "image": "test_04.jpg",
+  "baseline_detections": [
+   {
+    "class": "kite",
+    "conf": 0.426
+   }
+  ],
+  "finetuned_detections": [],
+  "hammer_found": false
+ },
+ {
+  "image": "test_05.jpg",
+  "baseline_detections": [
+   {
+    "class": "scissors",
+    "conf": 0.331
+   }
+  ],
+  "finetuned_detections": [
+   {
+    "class": "hammer",
+    "conf": 0.559
+   },
+   {
+    "class": "hammer",
+    "conf": 0.41
+   }
+  ],
+  "hammer_found": true
+ },
+ {
+  "image": "test_06.jpg",
+  "baseline_detections": [
+   {
+    "class": "airplane",
+    "conf": 0.61
+   }
+  ],
+  "finetuned_detections": [
+   {
+    "class": "hammer",
+    "conf": 0.295
+   }
+  ],
+  "hammer_found": true
+ },
+ {
+  "image": "test_07.jpg",
+  "baseline_detections": [
+   {
+    "class": "person",
+    "conf": 0.498
+   },
+   {
+    "class": "person",
+    "conf": 0.28
+   }
+  ],
+  "finetuned_detections": [
+   {
+    "class": "hammer",
+    "conf": 0.419
+   }
+  ],
+  "hammer_found": true
+ },
+ {
+  "image": "test_08.jpg",
+  "baseline_detections": [
+   {
+    "class": "airplane",
+    "conf": 0.284
+   }
+  ],
+  "finetuned_detections": [
+   {
+    "class": "hammer",
+    "conf": 0.408
+   }
+  ],
+  "hammer_found": true
+ }
+]

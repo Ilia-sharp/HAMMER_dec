@@ -1,0 +1,10 @@
+# Датасет ЛР2 (вариант 16): молоток / hammer
+# ВАЖНО: ultralytics резолвит относительный path от datasets_dir,
+# поэтому src/train.py генерирует .data_runtime.yaml с абсолютным путём.
+path: data/dataset
+train: images/train
+val: images/val
+test: images/test
+
+nc: 1
+names: [hammer]

@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hammer Detector</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23f59e0b'/%3E%3Cpath d='M14 18l8-8 10 4 6 6-6 6-8-2-4 4 24 24-6 6-24-24-10 10-4-4 10-10-4-8z' fill='%23111'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <main>
+    <header class="top">
+      <h1>Hammer Detector</h1>
+      <span class="author">Наздратенко И.Д.</span>
+    </header>
+
+    <div class="dropzone" id="dropzone" role="button" tabindex="0" aria-label="Загрузить фото">
+      <svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 16V4m0 0 4 4m-4-4-4 4"/><path d="M20 16v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2"/>
+      </svg>
+      <p>Перетащите фото, кликните или вставьте <kbd>Ctrl+V</kbd></p>
+    </div>
+    <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp" hidden>
+
+    <div class="actions">
+      <button class="btn primary" id="btnDetect" disabled>Найти молоток</button>
+      <button class="btn ghost" id="btnDemo">Пример</button>
+      <button class="btn ghost" id="btnReset" hidden>Сбросить</button>
+    </div>
+
+    <p class="err" id="errBanner" hidden></p>
+    <p class="bar-wrap" id="progressCard" hidden><span class="bar"><i id="pbarFill"></i></span></p>
+
+    <div class="result" id="resultSection" hidden>
+      <div class="canvas-wrap" id="canvasWrap">
+        <img id="preview" alt="">
+        <canvas id="overlay"></canvas>
+      </div>
+      <p class="stats" id="statLine"></p>
+    </div>
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

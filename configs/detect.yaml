@@ -1,0 +1,11 @@
+# Параметры инференса ЛР2 (src/detect.py и src/api.py)
+weights: models/best.pt            # PyTorch-веса (обучение/оценка; резервный бэкенд API)
+onnx_weights: models/best.onnx     # ONNX-модель — основной бэкенд API (onnxruntime, без torch)
+source_dir: data/test_frames   # кадры для detect.py
+imgsz: 448                      # 640 -> 448: x1.9 скорость, качество на тестовых кадрах не хуже
+conf: 0.30                      # проверено на всех 8 тестовых кадрах: даёт ровно 1 уверенную
+                                 # рамку на молоток (мин. conf 0.43, запас 0.13) и убирает
+                                 # слабые дубли-рамки (голова/рукоять отдельно, conf<0.27)
+iou: 0.45
+max_det: 10
+save_annotated: true            # сохранять размеченные картинки в outputs/detections

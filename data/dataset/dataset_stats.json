@@ -1,0 +1,18 @@
+{
+ "train": 44,
+ "val": 11,
+ "test": 8,
+ "val_files": [
+  "web_004.jpg",
+  "web_005.jpg",
+  "wiki_003.jpg",
+  "wiki_006.jpg",
+  "wiki_012.jpg",
+  "wiki_026.jpg",
+  "wiki_030.jpg",
+  "wiki_040.jpg",
+  "wiki_043.jpg",
+  "wiki_052.jpg",
+  "wiki_056.jpg"
+ ]
+}

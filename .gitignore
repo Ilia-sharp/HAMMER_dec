@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+
+# Ultralytics / обучение
+runs/
+.ultralytics/
+.data_runtime.yaml
+yolo26n.pt
+yoloe-11s-seg.pt
+outputs/train/weights/
+
+# Тяжёлые исходники изображений (в репозиторий идут data/dataset и data/test_frames)
+data/raw/
+data/qa_collages/
+data/test_frames/.tmp/
+
+# Служебное
+.DS_Store
+*.log
