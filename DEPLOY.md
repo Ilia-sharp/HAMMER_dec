@@ -1,97 +1,53 @@
-# DEPLOY.md — публикация репозитория и деплой на Render
+# DEPLOY — Docker, GitHub и Render
 
-## 1. Загрузка на GitHub
+## Локальный запуск
 
-### Вариант А. Через git (рекомендуется)
+Нужны Docker Desktop и Compose. В корне репозитория выполните:
 
-1. Создайте **пустой** репозиторий на https://github.com/new:
-   имя `SII-LR02-Ivanov`, без README и .gitignore (они уже в проекте).
-2. В папке проекта инициализируйте git и запушьте:
+    docker compose up --build
 
-```bash
-cd SII-LR02-Ivanov
-git init
-git add .
-git commit -m "ЛР2 вариант 16: hammer detection"
-git branch -M main
-git remote add origin https://github.com/<ВАШ_ЛОГИН>/SII-LR02-Ivanov.git
-git push -u origin main
-```
+Откройте http://localhost:8000. Подождите состояния «Модель готова», нажмите «Пример фото» и «Найти молоток».
 
-   > Файлы `models/best.pt` (5.2 MB) и `models/best.onnx` (9 MB) не попадают
-   > под лимиты обычного `git push` — Git LFS не требуется.
-   > Можно вместо git загрузить файлы через веб (вариант Б ниже).
+Проверка API:
 
-3. При запросе логина используйте **Personal Access Token** вместо пароля
-   (GitHub → Settings → Developer settings → Tokens classic, scope `repo`).
+    curl http://localhost:8000/health
+    curl http://localhost:8000/ready
+    curl http://localhost:8000/info
+    curl -X POST http://localhost:8000/detect -F "file=@static/img/demo.jpg"
 
-### Вариант Б. Через веб-интерфейс
+В Windows PowerShell используйте curl.exe вместо curl, если команда разрешается в Invoke-WebRequest.
 
-GitHub → ваш репозиторий → **Add file → Upload files** → перетащите
-СОДЕРЖИМОЕ папки (не сам zip). Ограничение web-загрузки: ≤ 100 файлов за раз
-и ≤ 25 MB на файл — в проекте лимиты соблюдены (best.pt ≈ 5.2 MB).
-Затем завершите первый коммит кнопкой *Commit changes*.
+Проверка тестов:
 
-> GitVerse: действия те же, только URL репозитория
-> `https://gitverse.ru/<user>/SII-LR02-Ivanov.git` (команды в README, п.9).
+    pip install -r requirements-dev.txt
+    pytest -q
 
-## 2. Деплой на Render по Blueprint
+После запуска контейнера можно выполнить smoke-тест: bash scripts/smoke_test.sh. Для внешнего URL задайте BASE_URL.
 
-1. Откройте https://dashboard.render.com/ и войдите (можно через GitHub).
-2. **New + → Blueprint**.
-3. Подключите GitHub-аккаунт (если ещё не подключён) и выберите
-   репозиторий `SII-LR02-Ivanov`.
-4. Render сам найдёт `render.yaml` в корне и покажет, что будет создано:
-   `sii-lr02-hammer-api` — **Web Service, план Free ($0/мес, 0.1 CPU, 512 MB RAM)**.
-5. Нажмите **Apply** (или *Create services*). Сборка займёт ~2 минуты
-   (torch/ultralytics НЕ ставятся — только onnxruntime + headless-cv2).
-6. Дождитесь статуса **Live**.
+## Render Blueprint
 
-Что прописано в `render.yaml`:
+1. Убедитесь, что в корне репозитория есть Dockerfile и render.yaml.
+2. Откройте https://dashboard.render.com/.
+3. Выберите New + → Blueprint и подключите репозиторий HAMMER_dec.
+4. Проверьте, что единственный создаваемый сервис — nazdratenko-hammer-lr8, Docker Web Service, plan free.
+5. Примените Blueprint и дождитесь завершения сборки.
+6. Откройте выданный Render URL.
+7. Проверьте /health, дождитесь /ready со статусом ready и выполните детекцию на сайте.
 
-| Параметр | Значение | Зачем |
-|---|---|---|
-| runtime | python 3.12.14 | совпадает с локальной средой |
-| buildCommand | `pip install -r requirements.txt` + переустановка headless-cv2 | onnxruntime, headless-cv2 (без GUI-либ) |
-| startCommand | `uvicorn src.api:app --host 0.0.0.0 --port $PORT --workers 1` | Render сам подаёт порт |
-| healthCheckPath | `/health` | отвечает даже во время инференса (детект — в threadpool) |
-| OMP/MKL_NUM_THREADS=1 | — | на 0.1 CPU многопоточность только вредит |
-| MALLOC_ARENA_MAX=2 | — | экономия RAM в контейнере |
-| YOLO_CONFIG_DIR=/tmp/Ultralytics | — | записываемый каталог (нужен, только если включится резервный бэкенд ultralytics) |
-| plan: free | 0.1 CPU / 512 MB | требование лабораторной; фактический RSS ≈ 150 MB |
+Пример удалённой проверки:
 
-## 3. Проверка после деплоя
+    curl https://YOUR-SERVICE.onrender.com/health
+    curl https://YOUR-SERVICE.onrender.com/ready
+    curl -F "file=@static/img/demo.jpg" https://YOUR-SERVICE.onrender.com/detect
 
-```bash
-# статус (должен быть status: ok, model_loaded: true)
-curl https://<ИМЯ-СЕРВИСА>.onrender.com/health
+Замените YOUR-SERVICE на реальное имя хоста Render. Демонстрационный файл должен существовать на компьютере, откуда выполняется curl.
 
-# детекция
-curl -F "file=@data/test_frames/test_01.jpg" https://<ИМЯ-СЕРВИСА>.onrender.com/detect
-```
+## Важные ограничения бесплатного тарифа
 
-Или просто откройте `https://<ИМЯ-СЕРВИСА>.onrender.com/` в браузере — там
-**веб-интерфейс детекции**: перетащите фото (или кнопка «Пример фото») →
-**Найти молоток** → рамки с conf поверх фото и статистика. Справа пусто?
-Значит сервис ещё «просыпается» — подождите ~50 с и повторите.
-JSON-описание сервиса доступно на `/info`, Swagger — на `/docs`.
+Blueprint задаёт plan free и один Web Service, не создаёт платную базу данных или отдельный worker. У бесплатного сервиса возможен spin-down после простоя, поэтому первый запрос после сна дольше обычного. Время прогрева измеряется по логам, а не гарантируется фиксированной цифрой.
 
-**Важно про free-тариф:** после 15 минут без запросов сервис засыпает.
-Первый запрос будет «холодным» (~50 сек) — это нормально, повторные отвечают
-за 1–3 секунды (CPU-инференс YOLO26n).
+Пользовательские изображения не сохраняются приложением. Локальная файловая система Render эфемерна. Не загружайте секреты в репозиторий.
 
-## 4. Автодеплой
+## Логи и откат
 
-`autoDeploy: true` в `render.yaml`: каждый `git push` в main автоматически
-пересобирает сервис. Обновили веса `models/best.pt` → push → через 5 минут
-API отдаёт новую модель.
-
-## 5. Частые проблемы
-
-| Симптом | Причина / решение |
-|---|---|
-| Build failed на pip install | Проверьте, что requirements.txt не менялся и не добавлен torch/ultralytics (они не нужны на сервере — только для обучения локально) |
-| Deploy жив, но `/health` → `degraded` | `models/best.onnx` не загрузился (проверьте, что файл закоммичен и не попал в .gitignore) — Logs в Render покажут `error` из onnxruntime; резервный бэкенд ultralytics включится, только если добавить torch в requirements.txt |
-| Первый запрос висит 50+ сек | Cold start бесплатного инстанса — ожидаемо |
-| 502 Bad Gateway | Сервис спит или упал: зайдите в Render → Manual Deploy → Clear build cache & deploy |
-| Изменения не применяются | Проверьте, что push был в ветку main и autoDeploy включён |
+Откройте Web Service → Logs в Render Dashboard. Каждому запросу соответствует request_id; ищите его в HTTP-логе и записи инференса. Для диагностики и отката руководствуйтесь RUNBOOK.md.

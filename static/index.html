@@ -3,43 +3,117 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Hammer Detector</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23f59e0b'/%3E%3Cpath d='M14 18l8-8 10 4 6 6-6 6-8-2-4 4 24 24-6 6-24-24-10 10-4-4 10-10-4-8z' fill='%23111'/%3E%3C/svg%3E">
+  <meta name="theme-color" content="#f7f8fa">
+  <meta name="description" content="Nazdratenko — лёгкий сервис детекции молотка на изображениях с помощью YOLO26n.">
+  <title>Nazdratenko — поиск молотка</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%23f1a447'/%3E%3Ctext x='50%25' y='57%25' font-size='42' font-family='Arial' font-weight='700' text-anchor='middle' fill='%232d333b'%3EN%3C/text%3E%3C/svg%3E">
   <link rel="stylesheet" href="/static/style.css">
+  <script src="/static/app.js" defer></script>
 </head>
 <body>
-  <main>
-    <header class="top">
-      <h1>Hammer Detector</h1>
-      <span class="author">Наздратенко И.Д.</span>
+  <div class="page-shell">
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="Nazdratenko — главная">
+        <span class="brand-mark" aria-hidden="true">N</span>
+        <span class="brand-word">Nazdratenko</span>
+      </a>
+      <div class="topbar-right">
+        <span class="course-tag">СИИ <i></i> ЛР № 8</span>
+        <span class="service-status" id="serviceStatus" data-status="loading" role="status" aria-live="polite">
+          <span class="status-dot"></span><span id="serviceStatusText">Подключение к сервису</span>
+        </span>
+      </div>
     </header>
 
-    <div class="dropzone" id="dropzone" role="button" tabindex="0" aria-label="Загрузить фото">
-      <svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M12 16V4m0 0 4 4m-4-4-4 4"/><path d="M20 16v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2"/>
-      </svg>
-      <p>Перетащите фото, кликните или вставьте <kbd>Ctrl+V</kbd></p>
-    </div>
-    <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp" hidden>
+    <main>
+      <section class="intro">
+        <div class="intro-copy">
+          <p class="eyebrow"><span class="eyebrow-line"></span> ВАРИАНТ 16 · YOLO26n</p>
+          <h1>Найди <span>молоток.</span></h1>
+          <p class="intro-text">Загрузи фото — модель найдёт объект и отметит его на изображении.</p>
+        </div>
+        <div class="model-pill" title="Модель загружается и проходит прогрев перед анализом">
+          <span class="model-glyph" aria-hidden="true">⌁</span>
+          <span><strong>YOLO26n</strong><small id="modelSubline">Подготовка модели…</small></span>
+        </div>
+      </section>
 
-    <div class="actions">
-      <button class="btn primary" id="btnDetect" disabled>Найти молоток</button>
-      <button class="btn ghost" id="btnDemo">Пример</button>
-      <button class="btn ghost" id="btnReset" hidden>Сбросить</button>
-    </div>
+      <section class="workbench" aria-label="Анализ изображения">
+        <section class="panel upload-panel" aria-labelledby="uploadHeading">
+          <div class="panel-heading">
+            <div><p class="section-kicker">01 / ИЗОБРАЖЕНИЕ</p><h2 id="uploadHeading">Что проверяем?</h2></div>
+            <span class="step-number">01</span>
+          </div>
 
-    <p class="err" id="errBanner" hidden></p>
-    <p class="bar-wrap" id="progressCard" hidden><span class="bar"><i id="pbarFill"></i></span></p>
+          <div class="dropzone" id="dropzone" tabindex="0" role="button" aria-label="Выбрать изображение">
+            <div class="dropzone-icon" aria-hidden="true"><span>↑</span></div>
+            <strong>Перетащи фото сюда</strong>
+            <span>или <u>выбери файл на устройстве</u></span>
+            <small>JPG, PNG или WebP · до 4 MB</small>
+          </div>
+          <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp" hidden>
 
-    <div class="result" id="resultSection" hidden>
-      <div class="canvas-wrap" id="canvasWrap">
-        <img id="preview" alt="">
-        <canvas id="overlay"></canvas>
-      </div>
-      <p class="stats" id="statLine"></p>
-    </div>
-  </main>
+          <div class="selected-file" id="selectedFile" hidden>
+            <span class="file-icon" aria-hidden="true">▧</span>
+            <span class="file-meta"><strong id="fileName">image.jpg</strong><small id="fileSize">0 KB</small></span>
+            <button class="icon-button" id="btnReset" type="button" aria-label="Удалить выбранное изображение" title="Удалить изображение">×</button>
+          </div>
 
-  <script src="/static/app.js"></script>
+          <div class="upload-actions">
+            <button class="button button-secondary" id="btnDemo" type="button"><span aria-hidden="true">▧</span> Пример фото</button>
+            <span class="paste-hint"><kbd>Ctrl</kbd> + <kbd>V</kbd> вставить</span>
+          </div>
+
+          <div class="progress-block" id="progressBlock" hidden aria-live="polite">
+            <div class="progress-heading"><strong id="progressTitle">Подготовка к анализу</strong><span id="progressMeta">Ожидание</span></div>
+            <div class="progress-track" id="progressTrack"><span id="progressFill"></span></div>
+            <p id="progressDescription">Проверяем состояние сервиса.</p>
+          </div>
+          <div class="notice notice-error" id="errorNotice" hidden role="alert">
+            <span class="notice-mark">!</span><span id="errorText">Не удалось обработать запрос.</span>
+          </div>
+
+          <button class="button button-primary" id="btnDetect" type="button" disabled>
+            <span>Найти молоток</span><span class="button-arrow" aria-hidden="true">↗</span>
+          </button>
+          <p class="privacy-note"><span aria-hidden="true">♧</span> Фото обрабатывается в памяти и не сохраняется приложением.</p>
+        </section>
+
+        <section class="panel result-panel" aria-labelledby="resultHeading">
+          <div class="panel-heading result-heading">
+            <div><p class="section-kicker">02 / РЕЗУЛЬТАТ</p><h2 id="resultHeading">Что нашла модель</h2></div>
+            <span class="result-state" id="resultState">Ожидает фото</span>
+          </div>
+
+          <div class="canvas-stage" id="canvasStage">
+            <div class="empty-result" id="emptyResult">
+              <div class="scan-illustration" aria-hidden="true">
+                <span class="scan-corner corner-tl"></span><span class="scan-corner corner-tr"></span>
+                <span class="scan-corner corner-bl"></span><span class="scan-corner corner-br"></span>
+                <svg viewBox="0 0 120 120" fill="none"><path d="m32 35 12-12 20 4 13 13-12 12-14-4-7 7 38 38-8 8-38-38-11 11-8-8 11-11-4-14z" fill="#e4e8ed" stroke="#a9b1bb" stroke-width="1.5" stroke-linejoin="round"/><path d="m29 31 12-12 20 4 13 13-12 12-14-4-7 7" stroke="#f2a64b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+              <strong>Здесь появится результат</strong>
+              <p>Выбери изображение, чтобы начать анализ.</p>
+            </div>
+            <div class="canvas-wrap" id="canvasWrap" hidden><canvas id="resultCanvas" aria-label="Изображение с рамками обнаруженных объектов"></canvas></div>
+          </div>
+
+          <div class="result-metrics" id="resultMetrics" hidden>
+            <div class="metric"><span>Объекты</span><strong id="metricCount">—</strong></div>
+            <div class="metric"><span>Уверенность</span><strong id="metricConfidence">—</strong></div>
+            <div class="metric"><span>Инференс</span><strong id="metricLatency">—</strong></div>
+          </div>
+          <div class="detection-list" id="detectionList" hidden></div>
+          <div class="result-footnote"><span class="legend-dot"></span><span>Рамка отмечает предполагаемое положение молотка.</span></div>
+        </section>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span>© 2026 Nazdratenko</span>
+      <span class="footer-center">YOLO26n <i></i> ONNX Runtime CPU <i></i> FastAPI</span>
+      <span class="footer-right">Лабораторная № 8 <b>·</b> Вариант 16</span>
+    </footer>
+  </div>
 </body>
 </html>
